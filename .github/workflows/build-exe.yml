@@ -42,30 +42,30 @@ jobs:
       run: |
         pyinstaller --onefile --name gather_xdaq_info gather_xdaq_info.py
     
-    - name: Sign and Notarize (macOS)
-      if: matrix.os == 'macos-latest'
-      env:
-        CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_BASE64 }}
-        CERTIFICATE_PWD: ${{ secrets.CERTIFICATE_PWD }}
-        KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PWD }}
-        APPLE_ID: ${{ secrets.APPLE_ID }}
-        TEAM_ID: ${{ secrets.TEAM_ID }}
-        APP_PWD: ${{ secrets.APP_PWD }}
-      run: |
-        echo $CERTIFICATE_BASE64 | base64 --decode > certificate.p12
-        security create-keychain -p $KEYCHAIN_PWD build.keychain
-        security default-keychain -s build.keychain
-        security unlock-keychain -p $KEYCHAIN_PWD build.keychain
-        security import certificate.p12 -k build.keychain -P $CERTIFICATE_PWD -T /usr/bin/codesign
-        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PWD build.keychain
+    # - name: Sign and Notarize (macOS)
+    #   if: matrix.os == 'macos-latest'
+    #   env:
+    #     CERTIFICATE_BASE64: ${{ secrets.CERTIFICATE_BASE64 }}
+    #     CERTIFICATE_PWD: ${{ secrets.CERTIFICATE_PWD }}
+    #     KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PWD }}
+    #     APPLE_ID: ${{ secrets.APPLE_ID }}
+    #     TEAM_ID: ${{ secrets.TEAM_ID }}
+    #     APP_PWD: ${{ secrets.APP_PWD }}
+    #   run: |
+    #     echo $CERTIFICATE_BASE64 | base64 --decode > certificate.p12
+    #     security create-keychain -p $KEYCHAIN_PWD build.keychain
+    #     security default-keychain -s build.keychain
+    #     security unlock-keychain -p $KEYCHAIN_PWD build.keychain
+    #     security import certificate.p12 -k build.keychain -P $CERTIFICATE_PWD -T /usr/bin/codesign
+    #     security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PWD build.keychain
 
-        codesign --force --options runtime --deep --sign "$TEAM_ID" dist/gather_xdaq_info
+    #     codesign --force --options runtime --deep --sign "$TEAM_ID" dist/gather_xdaq_info
 
-        ditto -c -k --keepParent dist/gather_xdaq_info dist/gather_xdaq_info.zip
+    #     ditto -c -k --keepParent dist/gather_xdaq_info dist/gather_xdaq_info.zip
 
-        xcrun notarytool store-credentials "kontex" --apple-id "$APPLE_ID" --team-id "$TEAM_ID" --password "$APP_PWD"
-        xcrun notarytool submit dist/gather_xdaq_info.zip --keychain-profile "kontex" --wait
-        xcrun stapler staple dist/gather_xdaq_info
+    #     xcrun notarytool store-credentials "kontex" --apple-id "$APPLE_ID" --team-id "$TEAM_ID" --password "$APP_PWD"
+    #     xcrun notarytool submit dist/gather_xdaq_info.zip --keychain-profile "kontex" --wait
+    #     xcrun stapler staple dist/gather_xdaq_info
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
