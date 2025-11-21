@@ -40,7 +40,7 @@ jobs:
     
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile --name gather_xdaq_info --collect-all pylibxdaq gather_xdaq_info.py
+        pyinstaller --onefile --name gather_xdaq_info --collect-all pyxdaq --collect-all pylibxdaq gather_xdaq_info.py
     
     # - name: Sign and Notarize (macOS)
     #   if: matrix.os == 'macos-latest'
